@@ -74,6 +74,14 @@ allowed = function(url, parenturl)
   end
   
   if string.match(url, "^https?://lh3%.googleusercontent%.com/") then
+    -- Some weird short URLs were getting extracted for this domain
+    local slug = string.match(url, "^https?://lh3%.googleusercontent%.com/(.*)$")
+    if slug then
+      --print("Slug is " .. slug .. " len is " .. tostring(#slug))
+      if #slug < 6 then
+        return false
+      end
+    end
     return true
   end
   
@@ -92,7 +100,7 @@ allowed = function(url, parenturl)
     return true
   end
 
-  if string.match(url, "^https?://chrome%.google%.com/webstore/download/[^/]+/package/main$") then
+  if string.match(url, "^https?://chrome%.google%.com/webstore/download/[^/]+/package/main") then
     return true
   end
   
@@ -287,7 +295,7 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
   -- Why this endpoint even exists, when it always seems to give 401s even on valid extensions, I don't know
   -- (normally, it will only be grabbed when one of the response=redirect URLs redirect to it, which only seems
   --  to happen on these extensions)
-  if string.match(url["url"], "^https?://chrome%.google%.com/webstore/download/[^/]+/package/main$") and status_code == 401 then
+  if string.match(url["url"], "^https?://chrome%.google%.com/webstore/download/[^/]+/package/main") and status_code == 401 then
     extension_no_longer_available = true
     return wget.actions.EXIT
   end
